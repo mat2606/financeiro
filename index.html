@@ -1096,14 +1096,22 @@ function getParcProgress(p){
 }
 
 function getAutoFixosForMonth(y,m){
+  // CORREÇÃO: antes exigia título preenchido para contar o parcelamento em
+  // Gastos Fixos, mas o total exibido na seção "Parcelamentos" (totalP, mais
+  // abaixo) não tinha essa exigência — então um parcelamento com valor e
+  // parcelas preenchidos mas sem título aparecia no total da seção
+  // Parcelamentos e NÃO entrava no cálculo de Gastos/Saldo. Agora os dois
+  // usam o mesmo critério (valor>0 e parcelas>0), com um nome padrão quando
+  // o título estiver vazio.
   return (parcelamentosCache||[])
     .filter(p=>isMonthInParc(p,y,m))
-    .filter(p=>(p.title||"").trim() && (+p.value||0)>0 && (+p.qty||0)>0)
+    .filter(p=>(+p.value||0)>0 && (+p.qty||0)>0)
     .map(p=>{
       const start = monthIndex(+p.startYear, +p.startMonth);
       const cur = monthIndex(y, m);
       const k = (cur-start)+1;
-      return { title:`${(p.title||"").trim()} (${k}/${+p.qty})`, value:+p.value||0 };
+      const title = (p.title||"").trim() || "Parcelamento";
+      return { title:`${title} (${k}/${+p.qty})`, value:+p.value||0 };
     });
 }
 
@@ -1437,8 +1445,14 @@ function calc(){
   const gastos = fixoManual + fixoAuto + vari;
   const saldo = renda - gastos - inv;
 
+  // CORREÇÃO: o card do topo somava Investimentos dentro de "Gastos"
+  // (gastos+inv), mas o gráfico de Barras/Pizza mostrava a barra "Gastos"
+  // sem os investimentos — por isso os valores não batiam. Agora
+  // Investimentos é sempre uma categoria separada de Gastos, tanto no
+  // card quanto em todos os gráficos. O Saldo continua correto:
+  // Saldo = Renda - Gastos - Investimentos.
   topRenda.textContent = format(renda);
-  topGastos.textContent = format(gastos+inv);
+  topGastos.textContent = format(gastos);
 
   const saldoEl = document.getElementById("topSaldo");
   topSaldo.textContent = format(saldo);
@@ -1658,13 +1672,16 @@ async function drawHistoryChart(){
       (d.blocks.fixo||[]).forEach(i=>fx+=+i.value||0);
       (d.blocks.vari||[]).forEach(i=>vr+=+i.value||0);
     }
-    /* CORREÇÃO: "autoFx" (parcelamentos do mês) já representa o mesmo
+    /* CORREÇÃO 1: "autoFx" (parcelamentos do mês) já representa o mesmo
        valor que antes era somado de novo como "parcM". Removida a
-       duplicação também aqui no histórico. */
+       duplicação também aqui no histórico.
+       CORREÇÃO 2: "gastosData" somava investimentos (g+iv), diferente do
+       gráfico de Barras/Pizza que não soma. Agora usa só "g", igual ao
+       card do topo e aos outros gráficos — os três batem entre si. */
     const autoFx = getAutoFixosForMonth(y,m).reduce((a,b)=>a+(+b.value||0),0);
     const g = fx+autoFx+vr;
     rendaData.push(r);
-    gastosData.push(g+iv);
+    gastosData.push(g);
     saldoData.push(r-g-iv);
   }
 
