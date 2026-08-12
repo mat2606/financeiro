@@ -748,7 +748,10 @@ input[type=month]{
 .g-prog-fill{height:100%;border-radius:2px;transition:.4s ease;}
 .g-empty{font-size:12px;color:var(--text2);padding:4px 0;font-style:italic;}
 .g-save-note{font-size:10px;color:rgba(233,247,255,.25);text-align:center;padding-top:12px;border-top:1px solid var(--border2);margin-top:12px;letter-spacing:.5px;}
-  
+
+/* NOTAS MODAL */
+#notasTextarea:focus{border-color:var(--border);background:rgba(0,234,255,.05);}
+
 </style>
 </head>
 <body>
@@ -764,6 +767,7 @@ input[type=month]{
 
       <div class="user-chip">
         <button class="btn-gestao" onclick="openGestao()">⊞ Gestão</button>
+        <button class="btn-gestao" onclick="openNotas()">📝 Notas</button>
         <span class="badge" id="netBadge">
           <span class="badge-dot" id="netDot"></span>
           <span id="netText">Online</span>
@@ -884,6 +888,19 @@ input[type=month]{
       <button class="add-btn" onclick="addItem('vari')">+ Adicionar gasto variável</button>
     </div>
 
+    <!-- ASSINATURAS (STREAMING / APPS) -->
+    <div class="section" data-type="assin">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="section-icon" style="background:rgba(96,165,250,.14);color:#60a5fa;">▶</span>
+          Assinaturas (Streaming/Apps)
+        </div>
+        <span class="section-total" id="totalAssin">R$ 0,00</span>
+      </div>
+      <div class="items"></div>
+      <button class="add-btn" onclick="addItem('assin')">+ Adicionar assinatura</button>
+    </div>
+
     <!-- GESTÃOOOO -->
 <div class="gestao-backdrop" id="gestaoBd" style="display:none;" onclick="if(event.target===this)closeGestao()">
   <div class="gestao-modal">
@@ -904,6 +921,20 @@ input[type=month]{
       <div class="g-list" id="gVariList"></div>
       <div class="g-prog-wrap"><div class="g-prog-fill" id="gVariBar" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));"></div></div>
       <div class="g-save-note">Estados salvos automaticamente na sua conta</div>
+    </div>
+  </div>
+</div>
+
+    <!-- NOTAS DO MÊS -->
+<div class="gestao-backdrop" id="notasBd" style="display:none;" onclick="if(event.target===this)closeNotas()">
+  <div class="gestao-modal">
+    <div class="gestao-header">
+      <h2>Notas do mês <span id="notasMonthLabel" style="font-size:11px;color:var(--text2);font-weight:400;margin-left:8px;"></span></h2>
+      <button class="gestao-close" onclick="closeNotas()">✕</button>
+    </div>
+    <div class="gestao-body">
+      <textarea id="notasTextarea" placeholder="Anote aqui observações, lembretes ou qualquer coisa sobre este mês..." style="width:100%;min-height:220px;resize:vertical;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:var(--text);font-size:13px;font-family:var(--font);outline:none;line-height:1.5;"></textarea>
+      <div class="g-save-note">Salvo automaticamente no mês atual</div>
     </div>
   </div>
 </div>
@@ -1441,8 +1472,9 @@ function calc(){
   const fixoManual = sectionTotal("fixo");
   const fixoAuto = getAutoFixosForMonth(currentYear,currentMonth).reduce((a,b)=>a+(+b.value||0),0);
   const vari = sectionTotal("vari");
+  const assin = sectionTotal("assin");
 
-  const gastos = fixoManual + fixoAuto + vari;
+  const gastos = fixoManual + fixoAuto + vari + assin;
   const saldo = renda - gastos - inv;
 
   // CORREÇÃO: o card do topo somava Investimentos dentro de "Gastos"
@@ -1451,6 +1483,8 @@ function calc(){
   // Investimentos é sempre uma categoria separada de Gastos, tanto no
   // card quanto em todos os gráficos. O Saldo continua correto:
   // Saldo = Renda - Gastos - Investimentos.
+  // As Assinaturas (streaming/apps) entram dentro de Gastos, junto com
+  // Gastos Fixos, Parcelamentos automáticos e Gastos Variáveis.
   topRenda.textContent = format(renda);
   topGastos.textContent = format(gastos);
 
@@ -1465,6 +1499,7 @@ function calc(){
   document.getElementById("totalInv").textContent = format(inv);
   document.getElementById("totalFixo").textContent = format(fixoManual+fixoAuto);
   document.getElementById("totalVari").textContent = format(vari);
+  document.getElementById("totalAssin").textContent = format(assin);
 
   updateChart(renda, gastos, inv);
 }
@@ -1479,7 +1514,7 @@ function scheduleSave(){
 async function save(){
   if(isLoading) return;
   const data={blocks:{}};
-  ["renda","inv","fixo","vari"].forEach(t=>{
+  ["renda","inv","fixo","vari","assin"].forEach(t=>{
     data.blocks[t]=[];
     document.querySelectorAll(`[data-type="${t}"] .item`).forEach(i=>{
       if(i.classList.contains("auto-parc")) return;
@@ -1500,7 +1535,7 @@ async function load(){
 
   const d = await loadMonthData(currentYear,currentMonth);
   if(d?.blocks){
-    ["renda","inv","fixo","vari"].forEach(t=>{
+    ["renda","inv","fixo","vari","assin"].forEach(t=>{
       (d.blocks[t]||[]).forEach(i=>window.addItem(t,i));
     });
   }
@@ -1665,21 +1700,24 @@ async function drawHistoryChart(){
     while(m>11){m-=12;y++;}
     rLabels.push(`${meses[m].slice(0,3)}/${String(y).slice(2)}`);
     const d = await loadMonthData(y,m);
-    let r=0,fx=0,vr=0,iv=0;
+    let r=0,fx=0,vr=0,iv=0,as=0;
     if(d?.blocks){
       (d.blocks.renda||[]).forEach(i=>r+=+i.value||0);
       (d.blocks.inv||[]).forEach(i=>iv+=+i.value||0);
       (d.blocks.fixo||[]).forEach(i=>fx+=+i.value||0);
       (d.blocks.vari||[]).forEach(i=>vr+=+i.value||0);
+      (d.blocks.assin||[]).forEach(i=>as+=+i.value||0);
     }
     /* CORREÇÃO 1: "autoFx" (parcelamentos do mês) já representa o mesmo
        valor que antes era somado de novo como "parcM". Removida a
        duplicação também aqui no histórico.
        CORREÇÃO 2: "gastosData" somava investimentos (g+iv), diferente do
        gráfico de Barras/Pizza que não soma. Agora usa só "g", igual ao
-       card do topo e aos outros gráficos — os três batem entre si. */
+       card do topo e aos outros gráficos — os três batem entre si.
+       As Assinaturas ("as") entram no total de gastos, igual no cálculo
+       principal (calc()). */
     const autoFx = getAutoFixosForMonth(y,m).reduce((a,b)=>a+(+b.value||0),0);
-    const g = fx+autoFx+vr;
+    const g = fx+autoFx+vr+as;
     rendaData.push(r);
     gastosData.push(g);
     saldoData.push(r-g-iv);
@@ -1825,6 +1863,7 @@ window.savePDF = function(){
   ${makeTable("Investimentos",getList("inv"))}
   ${makeTable("Gastos Fixos",getList("fixo"))}
   ${makeTable("Gastos Variáveis",getList("vari"))}
+  ${makeTable("Assinaturas (Streaming/Apps)",getList("assin"))}
   ${empRows.length?`<div class="emp-section">
     <h2>Empréstimos Pessoais (não incluídos no saldo)</h2>
     <table><thead><tr><th>Nome</th><th>Valor Total</th><th>Parcelas</th><th>Data</th></tr></thead><tbody>
@@ -2006,6 +2045,56 @@ window.openGestao = async function(){
 window.closeGestao = function(){
   document.getElementById('gestaoBd').style.display='none';
 };
+
+/* ===== NOTAS DO MÊS ===== */
+let notasState = "";
+let notasSaveTimer = null;
+
+function localNotasKey(){ return `${localPrefix()}_notas_${monthKey(currentYear,currentMonth)}`; }
+
+async function loadNotasState(){
+  if(canCloud()){
+    try{
+      const ref = doc(db, userRoot(), "notas", monthKey(currentYear,currentMonth));
+      const snap = await getDoc(ref);
+      if(snap.exists()) return snap.data()?.text || "";
+    }catch{}
+  }
+  return lsGet(localNotasKey(), "");
+}
+
+async function saveNotasState(text){
+  lsSet(localNotasKey(), text);
+  if(canCloud()){
+    try{
+      await setDoc(doc(db, userRoot(), "notas", monthKey(currentYear,currentMonth)), {text}, {merge:true});
+    }catch(err){
+      console.warn("Falha ao salvar notas na nuvem:", err);
+    }
+  }
+}
+
+window.openNotas = async function(){
+  notasState = await loadNotasState();
+  const ta = document.getElementById('notasTextarea');
+  ta.value = notasState;
+  document.getElementById('notasMonthLabel').textContent = monthLabel(currentYear,currentMonth);
+  document.getElementById('notasBd').style.display='flex';
+  ta.focus();
+};
+
+window.closeNotas = function(){
+  document.getElementById('notasBd').style.display='none';
+};
+
+// Liga o auto-save da nota assim que a página carrega. A nota sempre é
+// salva na chave do mês que estava aberto no momento (currentYear/currentMonth),
+// então trocar de mês com o bloco aberto não mistura notas de meses diferentes.
+document.getElementById('notasTextarea').addEventListener('input', (e)=>{
+  notasState = e.target.value;
+  if(notasSaveTimer) clearTimeout(notasSaveTimer);
+  notasSaveTimer = setTimeout(()=>{ saveNotasState(notasState).catch(()=>{}); }, 600);
+});
 
 /* ===== BOOT ===== */
 async function refreshUserUI(){
