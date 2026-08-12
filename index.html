@@ -667,6 +667,26 @@ body::before{
   color:var(--purple);
 }
 
+/* COPIAR SEÇÃO PARA O PRÓXIMO MÊS */
+.copy-btn{
+  width:26px; height:26px;
+  border-radius:7px;
+  border:1px solid var(--border2);
+  background:rgba(255,255,255,.05);
+  color:var(--text2);
+  font-size:13px;
+  line-height:1;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:.2s;
+  flex-shrink:0;
+}
+.copy-btn:hover{
+  background:rgba(0,234,255,.12);
+  border-color:var(--border);
+  color:var(--neon);
+}
+
 /* PDF */
 .actions-row{
   display:flex;
@@ -830,7 +850,10 @@ input[type=month]{
           <span class="section-icon" style="background:rgba(63,255,217,.12);color:#3fffd9;">↑</span>
           Renda
         </div>
-        <span class="section-total" id="totalRenda">R$ 0,00</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="copy-btn" title="Copiar itens para o próximo mês" onclick="copySectionToNextMonth('renda')">⇒</button>
+          <span class="section-total" id="totalRenda">R$ 0,00</span>
+        </div>
       </div>
       <div class="items"></div>
       <button class="add-btn" onclick="addItem('renda')">+ Adicionar renda</button>
@@ -843,7 +866,10 @@ input[type=month]{
           <span class="section-icon" style="background:rgba(0,234,255,.12);color:#00eaff;">◆</span>
           Investimentos
         </div>
-        <span class="section-total" id="totalInv">R$ 0,00</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="copy-btn" title="Copiar itens para o próximo mês" onclick="copySectionToNextMonth('inv')">⇒</button>
+          <span class="section-total" id="totalInv">R$ 0,00</span>
+        </div>
       </div>
       <div class="items"></div>
       <button class="add-btn" onclick="addItem('inv')">+ Adicionar investimento</button>
@@ -869,7 +895,10 @@ input[type=month]{
           <span class="section-icon" style="background:rgba(255,123,123,.12);color:#ff7b7b;">⊘</span>
           Gastos Fixos
         </div>
-        <span class="section-total" id="totalFixo">R$ 0,00</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="copy-btn" title="Copiar itens para o próximo mês" onclick="copySectionToNextMonth('fixo')">⇒</button>
+          <span class="section-total" id="totalFixo">R$ 0,00</span>
+        </div>
       </div>
       <div class="items"></div>
       <button class="add-btn" onclick="addItem('fixo')">+ Adicionar gasto fixo</button>
@@ -882,7 +911,10 @@ input[type=month]{
           <span class="section-icon" style="background:rgba(255,123,123,.08);color:#ff9b9b;">≈</span>
           Gastos Variáveis
         </div>
-        <span class="section-total" id="totalVari">R$ 0,00</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="copy-btn" title="Copiar itens para o próximo mês" onclick="copySectionToNextMonth('vari')">⇒</button>
+          <span class="section-total" id="totalVari">R$ 0,00</span>
+        </div>
       </div>
       <div class="items"></div>
       <button class="add-btn" onclick="addItem('vari')">+ Adicionar gasto variável</button>
@@ -895,7 +927,10 @@ input[type=month]{
           <span class="section-icon" style="background:rgba(96,165,250,.14);color:#60a5fa;">▶</span>
           Assinaturas (Streaming/Apps)
         </div>
-        <span class="section-total" id="totalAssin">R$ 0,00</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="copy-btn" title="Copiar itens para o próximo mês" onclick="copySectionToNextMonth('assin')">⇒</button>
+          <span class="section-total" id="totalAssin">R$ 0,00</span>
+        </div>
       </div>
       <div class="items"></div>
       <button class="add-btn" onclick="addItem('assin')">+ Adicionar assinatura</button>
@@ -1458,6 +1493,65 @@ function sectionTotal(type){
   });
   return t;
 }
+
+/* ===== COPIAR SEÇÃO PARA O PRÓXIMO MÊS ===== */
+const SECTION_LABELS = {
+  renda:"Renda",
+  inv:"Investimentos",
+  fixo:"Gastos Fixos",
+  vari:"Gastos Variáveis",
+  assin:"Assinaturas (Streaming/Apps)"
+};
+
+window.copySectionToNextMonth = async function(type){
+  let ny = currentYear, nm = currentMonth+1;
+  if(nm>11){ nm=0; ny++; }
+  const label = SECTION_LABELS[type] || type;
+  const destLabel = monthLabel(ny, nm);
+
+  // Pega os itens atuais da seção (ignora as linhas automáticas de parcelamento,
+  // que já são calculadas sozinhas com base na data de início/quantidade)
+  const items = [];
+  document.querySelectorAll(`[data-type="${type}"] .item`).forEach(row=>{
+    if(row.classList.contains("auto-parc")) return;
+    const title = row.querySelector(".title")?.value || "";
+    const value = row.querySelector(".value")?.value || "";
+    if(title.trim() || (+value||0)>0) items.push({title, value});
+  });
+
+  if(!items.length){
+    alert(`Não há itens em "${label}" neste mês para copiar.`);
+    return;
+  }
+
+  const ok = confirm(
+    `Copiar ${items.length} item(ns) de "${label}" para ${destLabel}?\n\n`+
+    `Isso vai SUBSTITUIR os itens de "${label}" que já existirem em ${destLabel}. `+
+    `As outras seções de ${destLabel} não serão alteradas.`
+  );
+  if(!ok) return;
+
+  try{
+    // Carrega os dados já existentes do próximo mês para não apagar as outras seções
+    const existing = (await loadMonthData(ny, nm)) || {};
+    if(!existing.blocks) existing.blocks = {};
+
+    // Cópia independente dos itens (nunca reaproveita referências dos objetos atuais)
+    existing.blocks[type] = items.map(i=>({ title:i.title, value:i.value }));
+
+    await saveMonthData(ny, nm, existing);
+
+    // Se o próximo mês já é o mês em exibição (não deveria acontecer, mas por
+    // segurança), recarrega a tela para refletir a cópia imediatamente.
+    if(ny===currentYear && nm===currentMonth){
+      await load(); renderParcelamentos(); calc();
+    }
+
+    alert(`Seção "${label}" copiada com sucesso para ${destLabel}!`);
+  }catch(err){
+    alert("Não foi possível copiar a seção. Tente novamente.");
+  }
+};
 
 /* ===== CALC ===== */
 /* CORREÇÃO DO BUG DE DUPLICAÇÃO:
