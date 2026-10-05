@@ -484,25 +484,26 @@ body::before{
   .item .delete-btn{ grid-area:delbtn; }
 }
 
-/* GASTOS DIÁRIOS - linha com categoria + produto + valor */
+/* GASTOS DIÁRIOS - linha com categoria + produto + valor + renda */
 .item.dia-item{
-  grid-template-columns: 130px 1fr 100px 36px 36px;
+  grid-template-columns: 120px 1fr 100px 130px 36px 36px;
 }
 .item.dia-item .category-custom{
   grid-column: 1 / -1;
   margin-top:2px;
 }
-@media (max-width:640px){
+@media (max-width:720px){
   .item.dia-item{
-    grid-template-columns: 1fr 36px 36px;
+    grid-template-columns: 1fr 1fr 36px 36px;
     grid-template-areas:
-      "category category category"
-      "title title title"
-      "value notebtn delbtn";
+      "category category category category"
+      "title title title title"
+      "value rsel notebtn delbtn";
   }
   .item.dia-item .category{ grid-area:category; }
   .item.dia-item .title{ grid-area:title; }
   .item.dia-item .value{ grid-area:value; }
+  .item.dia-item .rsel{ grid-area:rsel; }
   .item.dia-item .note-btn{ grid-area:notebtn; }
   .item.dia-item .delete-btn{ grid-area:delbtn; }
 }
@@ -867,6 +868,7 @@ input[type=month]{
 .g-empty{font-size:12px;color:var(--text2);padding:4px 0;font-style:italic;}
 .g-save-note{font-size:10px;color:rgba(233,247,255,.25);text-align:center;padding-top:12px;border-top:1px solid var(--border2);margin-top:12px;letter-spacing:.5px;}
 .g-dia-date{font-size:10px;color:rgba(233,247,255,.4);font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
+.g-rtag{font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid var(--border2);color:var(--text2);white-space:nowrap;flex-shrink:0;max-width:90px;overflow:hidden;text-overflow:ellipsis;}
 
 /* NOTAS MODAL */
 #notasTextarea:focus{border-color:var(--border);background:rgba(var(--accent-rgb),.05);}
@@ -919,6 +921,116 @@ input[type=month]{
       "value desce notebtn delbtn";
   }
   .item.renda-item .desce-btn{ grid-area:desce; }
+}
+
+/* ===== VÍNCULO: DE QUAL RENDA SAI CADA GASTO ===== */
+.item.has-rsel{ grid-template-columns:1fr 110px 130px 36px 36px; }
+.item.auto-parc{ align-items:end; }
+select.renda-sel{
+  width:100%;
+  min-width:0;
+  padding:9px 8px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.1);
+  border-left:3px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.3);
+  color:var(--text);
+  font-size:12px;
+  font-family:var(--font);
+  outline:none;
+  cursor:pointer;
+  color-scheme:dark;
+  text-overflow:ellipsis;
+  transition:.2s;
+}
+select.renda-sel.is-auto{ color:var(--text2); border-left-style:dashed; }
+select.renda-sel:focus{ border-color:var(--border); background:rgba(var(--accent-rgb),.05); }
+select.renda-sel option{ background:#0a1628; color:#e9f7ff; }
+.rsel-tag{
+  display:flex;
+  align-items:center;
+  min-width:0;
+  padding:9px 8px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.08);
+  border-left:3px dashed rgba(255,255,255,.18);
+  font-size:12px;
+  color:var(--text2);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  opacity:.75;
+}
+.rsel-tag.linked{ border-left-style:solid; color:var(--text); }
+.parc-renda-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+  font-size:12px;
+  color:var(--text2);
+}
+.parc-renda-row select.renda-sel{ width:auto; flex:0 1 220px; padding:6px 8px; }
+
+.rs-sub{ font-size:11px; color:var(--text2); margin-top:8px; }
+.rs-sub b{ font-family:var(--mono); font-weight:600; color:var(--text); }
+.rs-details{ margin-top:6px; }
+.rs-details summary{
+  font-size:11px;
+  color:var(--neon);
+  cursor:pointer;
+  user-select:none;
+  list-style:none;
+  padding:2px 0;
+}
+.rs-details summary::-webkit-details-marker{ display:none; }
+.rs-details summary::before{ content:"▸ "; }
+.rs-details[open] summary::before{ content:"▾ "; }
+.rs-list{ display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+.rs-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:7px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+}
+.rs-tag{
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:rgba(255,255,255,.06);
+  color:var(--text2);
+  flex-shrink:0;
+}
+.rs-name{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rs-val{ font-family:var(--mono); font-size:11px; color:var(--text2); white-space:nowrap; }
+.renda-check{
+  display:none;
+  margin-top:10px;
+  padding:8px 12px;
+  border-radius:8px;
+  font-size:11px;
+  color:var(--text2);
+  border:1px solid var(--border2);
+  background:rgba(255,255,255,.02);
+}
+.renda-check b{ font-family:var(--mono); color:var(--text); }
+.renda-check.ok .chk-ok{ color:var(--green); }
+.renda-check.warn{ color:var(--amber); border-color:rgba(255,201,107,.3); }
+
+@media (max-width:520px){
+  .item.has-rsel{
+    grid-template-columns:1fr 1fr 36px 36px;
+    grid-template-areas:
+      "title title title title"
+      "value rsel notebtn delbtn";
+  }
+  .item.has-rsel .rsel{ grid-area:rsel; }
+  .item.auto-parc .ap-title{ grid-area:title; }
+  .item.auto-parc .ap-gap{ grid-area:notebtn; }
 }
 
 /* ===== TOAST (avisos de upload) ===== */
@@ -977,7 +1089,7 @@ input[type=month]{
       </div>
     </div>
 
-    <!-- TOTAL GERAL (soma de todas as rendas e todos os gastos) -->
+    <!-- TOTAL GERAL (soma de todas as rendas e todos os gastos, independente de qual renda paga) -->
     <div class="top-cards">
       <div class="top-card">
         <div class="label">Renda total</div>
@@ -1044,7 +1156,7 @@ input[type=month]{
       <div class="items" id="diaItems"></div>
       <button class="add-btn" onclick="addDiaItem()">+ Adicionar gasto do dia</button>
       <button class="add-btn" onclick="addCategoria()">+ Nova categoria</button>
-      <div style="font-size:11px;color:var(--text2);margin-top:8px;">Sempre abre no dia de hoje (dentro do mês selecionado). Use as setas para ver ou lançar gastos de outros dias deste mês. Esses gastos entram no total de Gastos e no Saldo do mês, e não afetam outros meses.</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:8px;">Sempre abre no dia de hoje (dentro do mês selecionado). Use as setas para ver ou lançar gastos de outros dias deste mês. Esses gastos entram no total de Gastos e no Saldo do mês, e não afetam outros meses. Um gasto novo já vem com a mesma renda do último que você lançou.</div>
     </div>
 
     <!-- RENDA -->
@@ -1061,8 +1173,9 @@ input[type=month]{
       </div>
       <div class="items"></div>
       <div class="renda-unlinked" id="rendaUnlinked"></div>
+      <div class="renda-check" id="rendaCheck"></div>
       <button class="add-btn" onclick="addItem('renda')">+ Adicionar renda</button>
-      <div style="font-size:11px;color:var(--text2);margin-top:8px;">Use o botão ⬇ de cada renda para descer os gastos nela. Os gastos descem na ordem das rendas ativas (a última ativa absorve o excedente) e o resumo de cada renda aparece logo abaixo dela.</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.5;">Em cada gasto (Fixos, Variáveis, Assinaturas, Diária, Parcelamentos e Investimentos) escolha de qual renda ele sai, por exemplo Caju. O que ficar em "Auto ⬇" desce pelas rendas com ⬇ ligado, na ordem da lista (a última ligada absorve o excedente). Desligue o ⬇ de rendas como o Caju para que só saia delas o que você escolher. O topo continua somando tudo, de todas as rendas.</div>
     </div>
 
     <!-- INVESTIMENTOS -->
@@ -1316,6 +1429,89 @@ function safeUUID(){
   if(window.crypto?.randomUUID) return crypto.randomUUID();
   return "id_"+Date.now()+"_"+Math.floor(Math.random()*999999);
 }
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ===== VÍNCULO GASTO → RENDA =====
+   Cada renda do mês tem um id fixo. Cada gasto (fixo, variável, assinatura,
+   diária, parcelamento) e cada investimento guarda {renda, rendaNome}:
+   - renda vazia  -> "Auto ⬇": desce pelas rendas com ⬇ ligado
+   - renda = id   -> sai SÓ daquela renda (ex.: Caju)
+   O nome serve de reserva: se o item veio copiado de outro mês e o id não
+   existe aqui, ele se liga à renda de mesmo nome.
+   Isso NÃO muda os totais do topo: o topo soma tudo, de todas as rendas. */
+const RENDA_COLORS = ["#3fffd9","#ffc96b","#a78bfa","#60a5fa","#f472b6","#34d399","#f97316","#fbbf24"];
+const SEC_TAG = { fixo:"Fixo", parc:"Parcela", vari:"Variável", assin:"Assinatura", dia:"Diária", inv:"Invest." };
+function rendaColor(idx){ return RENDA_COLORS[idx % RENDA_COLORS.length]; }
+
+function getRendas(){
+  return [...document.querySelectorAll('[data-type="renda"] .item')].map((row,idx)=>({
+    row, idx,
+    id: row.dataset.id,
+    title: (row.querySelector(".title")?.value || "").trim(),
+    value: +row.querySelector(".value")?.value || 0,
+    on: row.dataset.desce === "1"
+  }));
+}
+function rendaLabel(r){ return r ? (r.title || `Renda ${r.idx+1}`) : "Auto ⬇"; }
+
+function resolveRenda(id, nome, rendas){
+  rendas = rendas || getRendas();
+  if(id){
+    const r = rendas.find(x=>x.id===id);
+    if(r) return r;
+  }
+  const n = String(nome || "").trim().toLowerCase();
+  if(n){
+    const r = rendas.find(x=>x.title.toLowerCase()===n);
+    if(r) return r;
+  }
+  return null;
+}
+
+// Se achou a renda, grava o id e o nome atuais no objeto (mantém o vínculo
+// mesmo se você renomear a renda depois). Se não achou, não mexe em nada.
+function healLink(o, rendas){
+  const r = resolveRenda(o.renda, o.rendaNome, rendas);
+  if(r){ o.renda = r.id; o.rendaNome = r.title; }
+  return r;
+}
+
+function fillRendaSelect(sel, rendas){
+  rendas = rendas || getRendas();
+  const cur = healLink(sel.dataset, rendas);
+  if(cur && sel._item){ sel._item.renda = cur.id; sel._item.rendaNome = cur.title; }
+  sel.innerHTML = `<option value="">Auto ⬇</option>` +
+    rendas.map(r=>`<option value="${esc(r.id)}">${esc(rendaLabel(r))}</option>`).join("");
+  sel.value = cur ? cur.id : "";
+  sel.classList.toggle("is-auto", !cur);
+  sel.style.borderLeftColor = cur ? rendaColor(cur.idx) : "";
+  sel.title = cur ? `Sai da renda: ${rendaLabel(cur)}` : "Auto: desce pelas rendas com ⬇ ligado";
+}
+
+// Usuário escolheu no select: grava id + nome e devolve {id, nome}
+function pickRenda(sel){
+  const rendas = getRendas();
+  const r = rendas.find(x=>x.id===sel.value) || null;
+  sel.dataset.renda = r ? r.id : "";
+  sel.dataset.rendaNome = r ? r.title : "";
+  fillRendaSelect(sel, rendas);
+  return { id: sel.dataset.renda, nome: sel.dataset.rendaNome };
+}
+
+// Atualiza todos os seletores quando uma renda é criada, renomeada ou excluída
+function refreshRendaSelects(){
+  const rendas = getRendas();
+  (diaItemsCache||[]).forEach(it=>healLink(it, rendas));
+  document.querySelectorAll("select.renda-sel").forEach(s=>fillRendaSelect(s, rendas));
+  refreshAutoFixos();
+}
+
+function rendaTagFor(id, nome, rendas){
+  const r = resolveRenda(id, nome, rendas);
+  return r ? { label: rendaLabel(r), color: rendaColor(r.idx) } : null;
+}
 
 /* ===== STATE ===== */
 let currentYear = new Date().getFullYear();
@@ -1331,6 +1527,9 @@ let activeChartType = "bar";
 let isLoading = false;
 let saveTimer = null;
 let historyCache = {};
+let lastDiaRenda = null;          // renda do último gasto diário escolhido (novo gasto já vem com ela)
+let lastDist = null;              // última distribuição por renda (usada no PDF)
+const rendaDetailsOpen = new Set(); // quais rendas estão com "Ver o que sai" aberto
 
 /* ===== LOCAL STORAGE ===== */
 function localPrefix(){ return USER ? `pf_v4_${USER.uid}` : "pf_v4_guest"; }
@@ -1553,7 +1752,12 @@ function getAutoFixosForMonth(y,m){
       const cur = monthIndex(y, m);
       const k = (cur-start)+1;
       const title = (p.title||"").trim() || "Parcelamento";
-      return { title:`${title} (${k}/${+p.qty})`, value:+p.value||0 };
+      return {
+        title:`${title} (${k}/${+p.qty})`,
+        value:+p.value||0,
+        renda:p.renda||"",
+        rendaNome:p.rendaNome||""
+      };
     });
 }
 
@@ -1603,9 +1807,9 @@ function renderParcelamentos(){
     div.style.cssText="background:rgba(255,201,107,.04);border:1px solid rgba(255,201,107,.12);border-radius:10px;padding:10px;margin-top:8px;";
     div.innerHTML=`
       <div class="parc-item">
-        <input class="ptitle" placeholder="Título" value="${p.title||""}">
-        <input class="pvalue" type="number" placeholder="Parcela R$" value="${p.value??""}" style="font-family:var(--mono);">
-        <input class="pqty" type="number" placeholder="Total" value="${p.qty??""}">
+        <input class="ptitle" placeholder="Título" value="${esc(p.title||"")}">
+        <input class="pvalue" type="number" placeholder="Parcela R$" value="${esc(p.value??"")}" style="font-family:var(--mono);">
+        <input class="pqty" type="number" placeholder="Total" value="${esc(p.qty??"")}">
         <input class="pstart" type="month" value="${pad2(+p.startYear)}-${pad2((+p.startMonth)+1)}">
         <button class="delete-btn">✕</button>
       </div>
@@ -1614,6 +1818,10 @@ function renderParcelamentos(){
         <span style="font-size:11px;color:var(--text2);">${format(+p.value||0)}/mês</span>
       </div>
       <div class="parc-progress"><div class="parc-progress-fill" style="width:${pct}%"></div></div>
+      <div class="parc-renda-row">
+        <span>Sai da renda:</span>
+        <select class="renda-sel" title="De qual renda sai esta parcela"></select>
+      </div>
       ${configured ? `
       <div class="parc-pay-row">
         <label class="parc-pay-chk">
@@ -1621,7 +1829,7 @@ function renderParcelamentos(){
           <span>Parcela ${k} paga</span>
         </label>
         <input type="date" class="ppaydate" value="${entry.date||""}">
-        ${hasReceipt ? `<button type="button" class="g-view" title="${entry.receipt.name||'comprovante'}">📄 Ver</button>` : ""}
+        ${hasReceipt ? `<button type="button" class="g-view" title="${esc(entry.receipt.name||'comprovante')}">📄 Ver</button>` : ""}
         <label class="g-attach${hasReceipt?" has-file":""}" title="${hasReceipt?"Trocar comprovante desta parcela":"Anexar comprovante desta parcela"}">
           ${hasReceipt?"✓":"📎"}
           <input type="file" accept="image/*,.pdf" class="preceipt">
@@ -1630,6 +1838,21 @@ function renderParcelamentos(){
       </div>` : `<div style="font-size:11px;color:var(--text2);margin-top:8px;">Preencha valor, total de parcelas e mês inicial para ativar o controle de pagamento.</div>`}
     `;
     box.appendChild(div);
+
+    // Seletor "Sai da renda"
+    const pSel = div.querySelector("select.renda-sel");
+    pSel.dataset.renda = p.renda || "";
+    pSel.dataset.rendaNome = p.rendaNome || "";
+    pSel._item = p;
+    fillRendaSelect(pSel);
+    pSel.addEventListener("change", async ()=>{
+      const l = pickRenda(pSel);
+      p.renda = l.id;
+      p.rendaNome = l.nome;
+      refreshAutoFixos();
+      calc();
+      await saveParcData(parcelamentosCache);
+    });
 
     if(hasReceipt){
       const viewBtn = div.querySelector(".g-view");
@@ -1726,17 +1949,23 @@ function renderParcelamentos(){
 }
 
 /* ===== AUTO FIXOS (das parcelas) - atualização isolada ===== */
-function buildAutoFixoRow(a){
+function buildAutoFixoRow(a, rendas){
   const div = document.createElement("div");
-  div.className="item auto-parc";
+  div.className="item has-rsel auto-parc";
+  const r = resolveRenda(a.renda, a.rendaNome, rendas);
   div.innerHTML=`
-    <div>
+    <div class="ap-title">
       <div class="auto-label" style="font-size:10px;letter-spacing:1px;color:var(--amber);margin-bottom:4px;">PARCELAMENTO</div>
-      <input class="title" value="${a.title}" readonly style="opacity:.7;pointer-events:none;">
+      <input class="title" value="${esc(a.title)}" readonly style="opacity:.7;pointer-events:none;width:100%;">
     </div>
-    <input class="value" value="${a.value}" readonly style="opacity:.7;pointer-events:none;font-family:var(--mono);">
+    <input class="value" value="${esc(a.value)}" readonly style="opacity:.7;pointer-events:none;font-family:var(--mono);">
+    <span class="rsel-tag rsel${r?" linked":""}" title="Para trocar a renda, use a seção Parcelamentos"${r?` style="border-left-color:${rendaColor(r.idx)};"`:""}>${esc(rendaLabel(r))}</span>
+    <span class="ap-gap"></span>
     <button class="delete-btn" disabled style="opacity:.2;cursor:not-allowed;">✕</button>
   `;
+  const tag = div.querySelector(".rsel-tag");
+  tag.dataset.renda = a.renda || "";
+  tag.dataset.rendaNome = a.rendaNome || "";
   return div;
 }
 
@@ -1744,8 +1973,9 @@ function refreshAutoFixos(){
   const fixoBox = document.querySelector(`[data-type="fixo"] .items`);
   if(!fixoBox) return;
   fixoBox.querySelectorAll(".item.auto-parc").forEach(el=>el.remove());
+  const rendas = getRendas();
   getAutoFixosForMonth(currentYear,currentMonth).forEach(a=>{
-    fixoBox.appendChild(buildAutoFixoRow(a));
+    fixoBox.appendChild(buildAutoFixoRow(a, rendas));
   });
 }
 
@@ -1781,12 +2011,12 @@ function renderEmprestimos(){
     div.className="emprestimo-item";
     div.innerHTML=`
       <div class="emprestimo-grid">
-        <input class="e-name" placeholder="Nome / descrição" value="${e.name||""}">
-        <input class="e-valor" type="number" placeholder="Valor total R$" value="${e.valor??""}" style="font-family:var(--mono);">
-        <input class="e-parcelas" type="number" placeholder="Parcelas" value="${e.totalParc??""}">
+        <input class="e-name" placeholder="Nome / descrição" value="${esc(e.name||"")}">
+        <input class="e-valor" type="number" placeholder="Valor total R$" value="${esc(e.valor??"")}" style="font-family:var(--mono);">
+        <input class="e-parcelas" type="number" placeholder="Parcelas" value="${esc(e.totalParc??"")}">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-        <input class="e-pagas" type="number" placeholder="Parcelas pagas" value="${e.parcelaspgas??""}">
+        <input class="e-pagas" type="number" placeholder="Parcelas pagas" value="${esc(e.parcelaspgas??"")}">
         <input class="e-data" type="date" value="${e.dataPagamento||""}" placeholder="Data do pagamento" style="padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:var(--text);font-size:13px;">
       </div>
       <div class="emprestimo-footer">
@@ -1849,30 +2079,40 @@ window.addItem = function(type, data={}){
   const box = document.querySelector(`[data-type="${type}"] .items`);
   const isRenda = type==="renda";
   const div = document.createElement("div");
-  div.className = "item" + (isRenda ? " renda-item" : "");
+  div.className = "item" + (isRenda ? " renda-item" : " has-rsel");
   const hasNote = !!(data.note && data.note.trim());
 
-  // Renda: o botão ⬇ ("descer gastos") começa ativo só na primeira renda do
+  // Renda: cada uma tem um id fixo (é para ele que os gastos apontam).
+  // O botão ⬇ ("descer gastos Auto") começa ativo só na primeira renda do
   // mês, ou usa o estado que estava salvo.
   let desce = false;
   if(isRenda){
+    let id = data.id || safeUUID();
+    if(box.querySelector(`.item[data-id="${CSS.escape(id)}"]`)) id = safeUUID(); // evita id repetido
+    div.dataset.id = id;
     desce = (typeof data.desce === "boolean") ? data.desce : (box.querySelectorAll(".item").length === 0);
     div.dataset.desce = desce ? "1" : "0";
   }
 
   div.innerHTML=`
-    <input class="title" placeholder="Título" value="${data.title||""}">
-    <input class="value" type="number" placeholder="0,00" value="${data.value??""}" style="font-family:var(--mono);">
-    ${isRenda ? `<button class="desce-btn${desce?" active":""}" type="button" title="Descer os gastos nesta renda">⬇</button>` : ""}
+    <input class="title" placeholder="Título" value="${esc(data.title||"")}">
+    <input class="value" type="number" placeholder="0,00" value="${esc(data.value??"")}" style="font-family:var(--mono);">
+    ${isRenda
+      ? `<button class="desce-btn${desce?" active":""}" type="button" title="Descer nesta renda os gastos marcados como Auto">⬇</button>`
+      : `<select class="renda-sel rsel" title="De qual renda sai este valor"></select>`}
     <button class="note-btn${hasNote?" has-note":""}" type="button" title="Anotação">📝</button>
     <button class="delete-btn">✕</button>
     ${isRenda ? `<div class="renda-summary"></div>` : ""}
-    <div class="note-box"><textarea class="note" placeholder="Anotação rápida sobre este item...">${data.note||""}</textarea></div>
+    <div class="note-box"><textarea class="note" placeholder="Anotação rápida sobre este item...">${esc(data.note||"")}</textarea></div>
   `;
   box.appendChild(div);
 
   div.querySelectorAll(".title, .value").forEach(i=>{
-    i.addEventListener("input",()=>{ if(!isLoading){ calc(); scheduleSave(); } });
+    i.addEventListener("input",()=>{
+      if(isLoading) return;
+      if(isRenda && i.classList.contains("title")) refreshRendaSelects();
+      calc(); scheduleSave();
+    });
   });
 
   if(isRenda){
@@ -1883,6 +2123,12 @@ window.addItem = function(type, data={}){
       desceBtn.classList.toggle("active", on);
       calc(); scheduleSave();
     });
+  } else {
+    const sel = div.querySelector("select.renda-sel");
+    sel.dataset.renda = data.renda || "";
+    sel.dataset.rendaNome = data.rendaNome || "";
+    fillRendaSelect(sel);
+    sel.addEventListener("change",()=>{ pickRenda(sel); calc(); scheduleSave(); });
   }
 
   const noteBtn = div.querySelector(".note-btn");
@@ -1895,11 +2141,19 @@ window.addItem = function(type, data={}){
   });
 
   div.querySelector(".delete-btn").onclick=()=>{
-    if(confirm("Excluir este item?")){
-      div.remove(); calc(); scheduleSave();
+    const msg = isRenda
+      ? "Excluir esta renda? Os gastos que saíam dela voltam para Auto ⬇."
+      : "Excluir este item?";
+    if(confirm(msg)){
+      div.remove();
+      if(isRenda) refreshRendaSelects();
+      calc(); scheduleSave();
     }
   };
-  if(!isLoading){ calc(); scheduleSave(); }
+  if(!isLoading){
+    if(isRenda) refreshRendaSelects();
+    calc(); scheduleSave();
+  }
 };
 
 function sectionTotal(type){
@@ -1935,7 +2189,14 @@ window.copySectionToNextMonth = async function(type){
     const note = row.querySelector(".note")?.value || "";
     if(title.trim() || (+value||0)>0){
       const o = {title, value, note};
-      if(type==="renda") o.desce = row.dataset.desce==="1";
+      if(type==="renda"){
+        o.id = row.dataset.id;          // mesmo id: os gastos copiados continuam ligados
+        o.desce = row.dataset.desce==="1";
+      } else {
+        const s = row.querySelector("select.renda-sel");
+        o.renda = s?.dataset.renda || "";
+        o.rendaNome = s?.dataset.rendaNome || "";
+      }
       items.push(o);
     }
   });
@@ -1971,66 +2232,155 @@ window.copySectionToNextMonth = async function(type){
 };
 
 /* ===== RESUMO POR RENDA =====
-   Desce os gastos (e depois os investimentos) pelas rendas com o botão ⬇
-   ativo, na ordem em que aparecem na lista. Cada renda absorve até o valor
-   dela; a ÚLTIMA renda ativa absorve o excedente (e pode ficar negativa). */
-function updateRendaSummaries(gastos, inv){
-  const rows = [...document.querySelectorAll('[data-type="renda"] .item')];
-  const info = rows.map(r=>({
-    row:r,
-    value:+r.querySelector(".value").value||0,
-    on:r.dataset.desce==="1",
-    g:0, i:0
-  }));
-  const en = info.filter(x=>x.on);
-
-  let restG = gastos;
-  en.forEach((x,k)=>{
-    const last = k===en.length-1;
-    x.g = last ? restG : Math.min(restG, Math.max(0,x.value));
-    restG -= x.g;
+   1) Cada gasto/investimento com renda escolhida sai SÓ daquela renda.
+   2) Os que estão em "Auto ⬇" descem pelas rendas com ⬇ ligado, na ordem
+      da lista, usando o que sobrou de cada uma depois do passo 1.
+      A ÚLTIMA renda ligada absorve o excedente (e pode ficar negativa).
+   O topo NÃO depende disso: ele soma todas as seções direto.
+   A linha de conferência compara as duas contas para provar que batem. */
+function collectLinked(rendas){
+  const gastos = [];
+  const invs = [];
+  const add = (arr, sec, title, value, id, nome)=>{
+    const v = +value||0;
+    if(!v) return;
+    const r = resolveRenda(id, nome, rendas);
+    arr.push({ sec, title:(String(title||"").trim() || "(sem título)"), value:v, rid: r ? r.id : "" });
+  };
+  ["fixo","vari","assin","inv"].forEach(t=>{
+    document.querySelectorAll(`[data-type="${t}"] .item`).forEach(row=>{
+      if(row.classList.contains("auto-parc")) return;
+      const s = row.querySelector("select.renda-sel");
+      add(t==="inv" ? invs : gastos, t,
+        row.querySelector(".title")?.value,
+        row.querySelector(".value")?.value,
+        s?.dataset.renda, s?.dataset.rendaNome);
+    });
   });
-  let restI = inv;
-  en.forEach((x,k)=>{
-    const last = k===en.length-1;
-    x.i = last ? restI : Math.min(restI, Math.max(0, x.value - x.g));
-    restI -= x.i;
+  getAutoFixosForMonth(currentYear,currentMonth).forEach(a=>add(gastos, "parc", a.title, a.value, a.renda, a.rendaNome));
+  (diaItemsCache||[]).forEach(it=>{
+    const d = (it.date||"").split("-").slice(1).reverse().join("/");
+    add(gastos, "dia", `${d} ${it.category||"Outro"} • ${(it.title||"").trim()||"(sem nome)"}`, it.value, it.renda, it.rendaNome);
+  });
+  return { gastos, invs };
+}
+
+function rsLine(tag, nome, valor){
+  return `<div class="rs-line"><span class="rs-tag">${esc(tag)}</span><span class="rs-name" title="${esc(nome)}">${esc(nome)}</span><span class="rs-val">${format(valor)}</span></div>`;
+}
+
+function updateRendaSummaries(gastosTotal, invTotal){
+  const rendas = getRendas();
+  const { gastos:gList, invs:iList } = collectLinked(rendas);
+
+  const per = {};
+  rendas.forEach(r=>{ per[r.id] = { dg:0, di:0, ag:0, ai:0, itens:[] }; });
+  let autoG = 0, autoI = 0;
+  gList.forEach(x=>{
+    if(x.rid && per[x.rid]){ per[x.rid].dg += x.value; per[x.rid].itens.push(x); }
+    else autoG += x.value;
+  });
+  iList.forEach(x=>{
+    if(x.rid && per[x.rid]){ per[x.rid].di += x.value; per[x.rid].itens.push(x); }
+    else autoI += x.value;
   });
 
-  info.forEach(x=>{
-    const box = x.row.querySelector(".renda-summary");
+  const en = rendas.filter(r=>r.on);
+  let restG = autoG;
+  en.forEach((r,k)=>{
+    const p = per[r.id];
+    const livre = Math.max(0, r.value - p.dg - p.di);
+    p.ag = (k===en.length-1) ? restG : Math.min(restG, livre);
+    restG -= p.ag;
+  });
+  let restI = autoI;
+  en.forEach((r,k)=>{
+    const p = per[r.id];
+    const livre = Math.max(0, r.value - p.dg - p.di - p.ag);
+    p.ai = (k===en.length-1) ? restI : Math.min(restI, livre);
+    restI -= p.ai;
+  });
+
+  const semRendaG = en.length ? 0 : autoG;
+  const semRendaI = en.length ? 0 : autoI;
+  lastDist = { rendas, per, semRendaG, semRendaI };
+
+  rendas.forEach(r=>{
+    const box = r.row.querySelector(".renda-summary");
     if(!box) return;
-    if(!x.on){
-      box.innerHTML = `<div class="rs-off">Gastos não descem desta renda • livre: <b style="font-family:var(--mono);color:var(--text);">${format(x.value)}</b> — toque em ⬇ para descer os gastos aqui</div>`;
-      return;
-    }
-    const saldo = x.value - x.g - x.i;
-    const used = x.g + x.i;
-    const pct = x.value>0 ? Math.min(100, Math.round((used/x.value)*100)) : (used>0?100:0);
-    const neg = saldo < 0;
+    const p = per[r.id];
+    const g = p.dg + p.ag;
+    const i = p.di + p.ai;
+    const saldo = r.value - g - i;
+    const used = g + i;
+    const pct = r.value>0 ? Math.max(0, Math.min(100, Math.round((used/r.value)*100))) : (used>0?100:0);
+    const neg = saldo < -0.004;
+
+    const linhas = p.itens.slice().sort((a,b)=>b.value-a.value)
+      .map(x=>rsLine(SEC_TAG[x.sec]||x.sec, x.title, x.value));
+    if(Math.abs(p.ag)>0.004) linhas.push(rsLine("Auto ⬇", "Gastos sem renda escolhida (rateio)", p.ag));
+    if(Math.abs(p.ai)>0.004) linhas.push(rsLine("Auto ⬇", "Investimentos sem renda escolhida", p.ai));
+
+    const sub = r.on
+      ? `Escolhidos para esta renda: <b>${format(p.dg+p.di)}</b> • Vindos do Auto ⬇: <b>${format(p.ag+p.ai)}</b>`
+      : `⬇ desligado: só sai desta renda o que você escolheu para ela (<b>${format(p.dg+p.di)}</b>)`;
+
+    const aberto = rendaDetailsOpen.has(r.id);
+    box.style.borderLeft = `3px solid ${rendaColor(r.idx)}`;
     box.innerHTML = `
       <div class="rs-grid">
-        <div><span>Gastos</span><b style="color:var(--red);">${format(x.g)}</b></div>
-        <div><span>Invest.</span><b style="color:var(--neon);">${format(x.i)}</b></div>
+        <div><span>Gastos</span><b style="color:var(--red);">${format(g)}</b></div>
+        <div><span>Invest.</span><b style="color:var(--neon);">${format(i)}</b></div>
         <div><span>Saldo</span><b style="color:${neg?"var(--red)":"var(--green)"};">${format(saldo)}</b></div>
       </div>
       <div class="parc-progress"><div class="parc-progress-fill" style="width:${pct}%;${neg?"background:var(--red);":""}"></div></div>
+      <div class="rs-sub">${sub}</div>
+      ${linhas.length ? `<details class="rs-details"${aberto?" open":""}>
+        <summary>Ver o que sai desta renda (${linhas.length})</summary>
+        <div class="rs-list">${linhas.join("")}</div>
+      </details>` : ""}
     `;
+    const det = box.querySelector("details");
+    if(det) det.addEventListener("toggle", ()=>{
+      if(det.open) rendaDetailsOpen.add(r.id); else rendaDetailsOpen.delete(r.id);
+    });
   });
 
   const un = document.getElementById("rendaUnlinked");
   if(un){
-    if(!en.length && (gastos>0 || inv>0)){
+    if(Math.abs(semRendaG)>0.004 || Math.abs(semRendaI)>0.004){
       un.style.display = "block";
-      un.textContent = `Nenhuma renda está com ⬇ ativo. Gastos sem renda vinculada: ${format(gastos)}` + (inv>0 ? ` • Invest.: ${format(inv)}` : "");
+      un.textContent = (rendas.length ? "Nenhuma renda está com ⬇ ligado." : "Nenhuma renda cadastrada.") +
+        ` Gastos em Auto sem renda: ${format(semRendaG)}` +
+        (Math.abs(semRendaI)>0.004 ? ` • Invest.: ${format(semRendaI)}` : "");
     } else {
       un.style.display = "none";
+    }
+  }
+
+  // Conferência: soma do que foi distribuído nas rendas = Gastos total do topo
+  const chk = document.getElementById("rendaCheck");
+  if(chk){
+    const nasRendas = rendas.reduce((s,r)=>s + per[r.id].dg + per[r.id].ag, 0);
+    const soma = nasRendas + semRendaG;
+    if(Math.abs(gastosTotal)<0.005 && Math.abs(soma)<0.005){
+      chk.style.display = "none";
+    } else {
+      const ok = Math.abs(soma - gastosTotal) < 0.01;
+      chk.style.display = "block";
+      chk.className = "renda-check " + (ok ? "ok" : "warn");
+      chk.innerHTML = `Conferência: <b>${format(nasRendas)}</b> nas rendas` +
+        (Math.abs(semRendaG)>0.004 ? ` + <b>${format(semRendaG)}</b> sem renda` : "") +
+        ` = <b>${format(soma)}</b> ` +
+        (ok ? `<span class="chk-ok">✓ igual ao Gastos total do topo</span>`
+            : `⚠ diferente do Gastos total do topo (${format(gastosTotal)})`);
     }
   }
 }
 
 /* ===== CALC =====
-   Topo = TOTAL GERAL de tudo (todas as rendas, todos os gastos, saldo).
+   Topo = TOTAL GERAL de tudo (todas as rendas, todos os gastos, saldo),
+   não importa de qual renda cada gasto sai.
    Saldo = Renda - Gastos - Investimentos.
    Gastos = Fixos + Parcelamentos + Variáveis + Assinaturas + Diária. */
 function calc(){
@@ -2073,6 +2423,7 @@ function scheduleSave(){
 
 async function save(){
   if(isLoading) return;
+  const rendas = getRendas();
   const data={blocks:{}};
   ["renda","inv","fixo","vari","assin"].forEach(t=>{
     data.blocks[t]=[];
@@ -2083,10 +2434,18 @@ async function save(){
         value:i.querySelector(".value").value,
         note:i.querySelector(".note")?.value||""
       };
-      if(t==="renda") o.desce = i.dataset.desce==="1";
+      if(t==="renda"){
+        o.id = i.dataset.id || "";
+        o.desce = i.dataset.desce==="1";
+      } else {
+        const s = i.querySelector("select.renda-sel");
+        o.renda = s?.dataset.renda || "";
+        o.rendaNome = s?.dataset.rendaNome || "";
+      }
       data.blocks[t].push(o);
     });
   });
+  (diaItemsCache||[]).forEach(it=>healLink(it, rendas));
   data.blocks.dia = diaItemsCache;
   await saveMonthData(currentYear, currentMonth, data);
 }
@@ -2099,8 +2458,10 @@ async function load(){
 
   const d = await loadMonthData(currentYear,currentMonth);
   diaItemsCache = (d && d.blocks && Array.isArray(d.blocks.dia)) ? d.blocks.dia : [];
+  lastDiaRenda = null;
 
   if(d?.blocks){
+    // renda primeiro: os outros itens precisam dela para montar o seletor
     ["renda","inv","fixo","vari","assin"].forEach(t=>{
       (d.blocks[t]||[]).forEach(i=>window.addItem(t,i));
     });
@@ -2115,6 +2476,7 @@ async function load(){
     currentDay = new Date(currentYear, currentMonth, 1);
   }
   renderDia();
+  refreshRendaSelects();
 
   isLoading=false;
   calc();
@@ -2148,15 +2510,16 @@ function buildDiaRow(it){
   const hasNote = !!(it.note && it.note.trim());
   div.innerHTML=`
     <select class="category">
-      ${DIA_CATEGORIAS.map(c=>`<option value="${c}" ${it.category===c?"selected":""}>${c}</option>`).join("")}
+      ${DIA_CATEGORIAS.map(c=>`<option value="${esc(c)}" ${it.category===c?"selected":""}>${esc(c)}</option>`).join("")}
       <option value="__outro__" ${!isPreset?"selected":""}>Outro...</option>
     </select>
-    <input class="title" placeholder="Produto" value="${it.title||""}">
-    <input class="value" type="number" placeholder="0,00" value="${it.value??""}" style="font-family:var(--mono);">
+    <input class="title" placeholder="Produto" value="${esc(it.title||"")}">
+    <input class="value" type="number" placeholder="0,00" value="${esc(it.value??"")}" style="font-family:var(--mono);">
+    <select class="renda-sel rsel" title="De qual renda sai este gasto"></select>
     <button class="note-btn${hasNote?" has-note":""}" type="button" title="Anotação">📝</button>
     <button class="delete-btn">✕</button>
-    <input class="category-custom" placeholder="Digite a categoria" value="${!isPreset?(it.category||""):""}" style="${!isPreset?"":"display:none;"}">
-    <div class="note-box"><textarea class="note" placeholder="Anotação rápida sobre este gasto...">${it.note||""}</textarea></div>
+    <input class="category-custom" placeholder="Digite a categoria" value="${!isPreset?esc(it.category||""):""}" style="${!isPreset?"":"display:none;"}">
+    <div class="note-box"><textarea class="note" placeholder="Anotação rápida sobre este gasto...">${esc(it.note||"")}</textarea></div>
   `;
   box.appendChild(div);
 
@@ -2177,6 +2540,21 @@ function buildDiaRow(it){
   });
   catCustom.addEventListener("input", ()=>{
     it.category = catCustom.value.trim() || "Outro";
+    scheduleSave();
+  });
+
+  // Seletor de renda (ex.: Caju)
+  const rSel = div.querySelector("select.renda-sel");
+  rSel.dataset.renda = it.renda || "";
+  rSel.dataset.rendaNome = it.rendaNome || "";
+  rSel._item = it;
+  fillRendaSelect(rSel);
+  rSel.addEventListener("change", ()=>{
+    const l = pickRenda(rSel);
+    it.renda = l.id;
+    it.rendaNome = l.nome;
+    lastDiaRenda = { id:l.id, nome:l.nome };
+    diaCalc();
     scheduleSave();
   });
 
@@ -2213,7 +2591,16 @@ function renderDia(){
 }
 
 window.addDiaItem = function(){
-  const it = { id:safeUUID(), date:dayKeyStr(currentDay), category:"Mercado", title:"", value:"", note:"" };
+  // Novo gasto já vem com a renda do último lançado (ex.: Caju)
+  let base = lastDiaRenda;
+  if(!base){
+    const prev = diaItemsCache[diaItemsCache.length-1];
+    base = prev ? { id:prev.renda||"", nome:prev.rendaNome||"" } : { id:"", nome:"" };
+  }
+  const it = {
+    id:safeUUID(), date:dayKeyStr(currentDay), category:"Mercado", title:"", value:"", note:"",
+    renda: base.id || "", rendaNome: base.nome || ""
+  };
   diaItemsCache.push(it);
   buildDiaRow(it);
   diaCalc();
@@ -2242,7 +2629,8 @@ window.addParcelamento = async function(){
   parcelamentosCache.push({
     id: safeUUID(),
     title:"", value:"", qty:"",
-    startMonth: currentMonth, startYear: currentYear
+    startMonth: currentMonth, startYear: currentYear,
+    renda:"", rendaNome:""
   });
   await saveParcData(parcelamentosCache);
   renderParcelamentos();
@@ -2274,7 +2662,7 @@ function buildLegend(items){
   el.innerHTML = items.map(i=>`
     <span class="legend-item">
       <span class="legend-dot" style="background:${i.color};"></span>
-      ${i.label}: <strong style="color:var(--text);margin-left:3px;font-family:var(--mono);">${format(i.val)}</strong>
+      ${esc(i.label)}: <strong style="color:var(--text);margin-left:3px;font-family:var(--mono);">${format(i.val)}</strong>
     </span>
   `).join("");
 }
@@ -2522,7 +2910,7 @@ function drawDetailChart(){
       <div style="display:flex;flex-direction:column;gap:6px;">
         ${sortedProducts.map(([name,val])=>`
           <div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:8px;">
-            <span style="color:var(--text);">${name}</span>
+            <span style="color:var(--text);">${esc(name)}</span>
             <span style="font-family:var(--mono);color:var(--neon);white-space:nowrap;">${format(val)}</span>
           </div>
         `).join("")}
@@ -2654,12 +3042,19 @@ window.setChartType = function(type, btn){
 
 /* ===== PDF ===== */
 window.savePDF = function(){
+  calc(); // garante resumo por renda atualizado
+  const rendas = getRendas();
+
   function getList(type){
     const arr=[];
     document.querySelectorAll(`[data-type="${type}"] .item`).forEach(row=>{
       const t=row.querySelector(".title")?.value?.trim();
       const v=row.querySelector(".value")?.value;
-      if(t||v) arr.push({title:t||"(sem título)", value:format(+v||0)});
+      if(t||v){
+        const s = row.querySelector("select.renda-sel, .rsel-tag");
+        const r = s ? resolveRenda(s.dataset.renda, s.dataset.rendaNome, rendas) : null;
+        arr.push({ title:t||"(sem título)", value:format(+v||0), renda: s ? rendaLabel(r) : null });
+      }
     });
     return arr;
   }
@@ -2669,7 +3064,8 @@ window.savePDF = function(){
     .sort((a,b)=>(a.date||"").localeCompare(b.date||""))
     .map(it=>({
       title:`${it.date||"?"} • ${it.category||"Outro"} • ${(it.title||"(sem nome)")}`,
-      value:format(+it.value||0)
+      value:format(+it.value||0),
+      renda: rendaLabel(resolveRenda(it.renda, it.rendaNome, rendas))
     }));
 
   const empRows = (emprestimosCache||[]).map(e=>{
@@ -2682,6 +3078,18 @@ window.savePDF = function(){
       data:e.dataPagamento||"-"
     };
   });
+
+  let porRendaHtml = "";
+  if(lastDist && lastDist.rendas.length){
+    const rows = lastDist.rendas.map(r=>{
+      const p = lastDist.per[r.id];
+      const g = p.dg + p.ag, i = p.di + p.ai;
+      return `<tr><td>${esc(rendaLabel(r))}</td><td>${format(r.value)}</td><td>${format(g)}</td><td>${format(i)}</td><td>${format(r.value-g-i)}</td></tr>`;
+    }).join("");
+    const sem = Math.abs(lastDist.semRendaG)>0.004
+      ? `<tr><td>Sem renda (Auto)</td><td>-</td><td>${format(lastDist.semRendaG)}</td><td>${format(lastDist.semRendaI)}</td><td>-</td></tr>` : "";
+    porRendaHtml = `<h2>Resumo por renda</h2><table><thead><tr><th>Renda</th><th>Valor</th><th>Gastos</th><th>Invest.</th><th>Saldo</th></tr></thead><tbody>${rows}${sem}</tbody></table>`;
+  }
 
   const html=`<html><head><meta charset="utf-8"><title>Planejamento</title>
   <style>body{font-family:Arial;padding:24px;color:#111;}h1{margin:0 0 4px;}
@@ -2704,6 +3112,7 @@ window.savePDF = function(){
     <div class="card"><span>Gastos total</span><strong>${topGastos.textContent}</strong></div>
     <div class="card"><span>Saldo total</span><strong>${topSaldo.textContent}</strong></div>
   </div>
+  ${porRendaHtml}
   ${makeTable("Renda",getList("renda"))}
   ${makeTable("Investimentos",getList("inv"))}
   ${makeTable("Gastos Diários (mês inteiro)",diaList)}
@@ -2713,7 +3122,7 @@ window.savePDF = function(){
   ${empRows.length?`<div class="emp-section">
     <h2>Empréstimos Pessoais (não incluídos no saldo)</h2>
     <table><thead><tr><th>Nome</th><th>Valor Total</th><th>Parcelas</th><th>Data</th></tr></thead><tbody>
-    ${empRows.map(e=>`<tr><td>${e.name}</td><td>${e.valor}</td><td>${e.status}</td><td>${e.data}</td></tr>`).join("")}
+    ${empRows.map(e=>`<tr><td>${esc(e.name)}</td><td>${e.valor}</td><td>${e.status}</td><td>${e.data}</td></tr>`).join("")}
     </tbody></table></div>`:""}
   <script>window.onload=()=>window.print();<\/script></body></html>`;
 
@@ -2723,8 +3132,9 @@ window.savePDF = function(){
 
 function makeTable(title, list){
   if(!list.length) return `<h2>${title}</h2><div style="color:#999;font-size:12px;">Nenhum item</div>`;
-  return `<h2>${title}</h2><table><thead><tr><th>Título</th><th>Valor</th></tr></thead><tbody>
-    ${list.map(i=>`<tr><td>${i.title}</td><td>${i.value}</td></tr>`).join("")}
+  const withR = list.some(i=>i.renda);
+  return `<h2>${title}</h2><table><thead><tr><th>Título</th>${withR?"<th>Sai da renda</th>":""}<th>Valor</th></tr></thead><tbody>
+    ${list.map(i=>`<tr><td>${esc(i.title)}</td>${withR?`<td>${esc(i.renda||"")}</td>`:""}<td>${i.value}</td></tr>`).join("")}
   </tbody></table>`;
 }
 
@@ -2761,7 +3171,7 @@ function normalizeGestaoEntry(entry){
 
 function gfmt(v){ return (+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 
-function buildGestaoItemRow(container, title, value, entry, receiptKey, onTogglePaid, onAttach, onRemove, dateLabel){
+function buildGestaoItemRow(container, title, value, entry, receiptKey, onTogglePaid, onAttach, onRemove, dateLabel, rTag){
   const div=document.createElement('div');
   div.className='g-item'+(entry.paid?' paid':'');
 
@@ -2771,9 +3181,10 @@ function buildGestaoItemRow(container, title, value, entry, receiptKey, onToggle
   div.innerHTML=`
     <div class="g-chk">${entry.paid?'✓':''}</div>
     ${dateLabel?`<span class="g-dia-date">${dateLabel}</span>`:""}
-    <span class="g-name">${title||'(sem título)'}</span>
+    <span class="g-name">${esc(title||'(sem título)')}</span>
+    ${rTag?`<span class="g-rtag" style="border-color:${rTag.color};color:${rTag.color};" title="Sai da renda ${esc(rTag.label)}">${esc(rTag.label)}</span>`:""}
     <span class="g-val">${gfmt(value)}</span>
-    ${hasFile ? `<button type="button" class="g-view" title="${entry.receipt.name||'comprovante'}">📄 Ver</button>` : ''}
+    ${hasFile ? `<button type="button" class="g-view" title="${esc(entry.receipt.name||'comprovante')}">📄 Ver</button>` : ''}
     <label class="g-attach${hasFile?' has-file':''}" title="${hasFile?'Trocar comprovante':'Anexar comprovante'}">
       ${hasFile?'✓':'📎'}
       <input type="file" accept="image/*,.pdf" />
@@ -2824,18 +3235,29 @@ function buildGestaoItemRow(container, title, value, entry, receiptKey, onToggle
   }
 }
 
+function rowLink(row){
+  const s = row.querySelector("select.renda-sel, .rsel-tag");
+  return s ? { id:s.dataset.renda||"", nome:s.dataset.rendaNome||"" } : null;
+}
+
 function renderGestaoList(type, listId, progId, barId){
+  const rendas = getRendas();
   const items = [];
   const autoItems = [];
+  const readRow = row=>({
+    title:row.querySelector('.title')?.value||'',
+    value:+row.querySelector('.value')?.value||0,
+    link:rowLink(row)
+  });
   if(type==='fixo'){
     document.querySelectorAll(`[data-type="fixo"] .item`).forEach(row=>{
-      if(row.classList.contains('auto-parc')) autoItems.push({title:row.querySelector('.title')?.value||'',value:+row.querySelector('.value')?.value||0});
-      else items.push({title:row.querySelector('.title')?.value||'',value:+row.querySelector('.value')?.value||0});
+      if(row.classList.contains('auto-parc')) autoItems.push(readRow(row));
+      else items.push(readRow(row));
     });
     autoItems.forEach(a=>items.push(a));
   } else {
     document.querySelectorAll(`[data-type="${type}"] .item`).forEach(row=>{
-      items.push({title:row.querySelector('.title')?.value||'',value:+row.querySelector('.value')?.value||0});
+      items.push(readRow(row));
     });
   }
   const list = document.getElementById(listId);
@@ -2862,6 +3284,8 @@ function renderGestaoList(type, listId, progId, barId){
       saveGestaoState().catch(()=>{});
     }
 
+    const rTag = item.link ? rendaTagFor(item.link.id, item.link.nome, rendas) : null;
+
     buildGestaoItemRow(
       list, item.title, item.value, entry, receiptKey,
       async ()=>{
@@ -2880,7 +3304,9 @@ function renderGestaoList(type, listId, progId, barId){
         gestaoState[type][i].receipt = null;
         await saveGestaoState();
         renderGestaoList(type,listId,progId,barId);
-      }
+      },
+      "",
+      rTag
     );
   });
   const total=list.querySelectorAll('.g-item').length;
@@ -2889,6 +3315,7 @@ function renderGestaoList(type, listId, progId, barId){
 }
 
 function renderGestaoDia(){
+  const rendas = getRendas();
   const list = document.getElementById('gDiaList');
   list.innerHTML='';
   const itemsSorted = (diaItemsCache||[])
@@ -2921,6 +3348,7 @@ function renderGestaoDia(){
 
     const dateLabel = (it.date||"").split("-").slice(1).reverse().join("/");
     const label = `${it.category||"Outro"} • ${it.title||"(sem nome)"}`;
+    const rTag = rendaTagFor(it.renda, it.rendaNome, rendas);
 
     buildGestaoItemRow(
       list, label, it.value, entry, receiptKey,
@@ -2941,7 +3369,8 @@ function renderGestaoDia(){
         await saveGestaoState();
         renderGestaoDia();
       },
-      dateLabel
+      dateLabel,
+      rTag
     );
   });
 
